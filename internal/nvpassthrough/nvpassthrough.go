@@ -239,12 +239,14 @@ func (n *nvpassthrough) UnbindFromDriver(device *nvpci.NvidiaPCIDevice) error {
 
 func bind(device string, driver string) error {
 	driverOverridePath := filepath.Join(pciDevicesRoot, device, "driver_override")
-	if err := os.WriteFile(driverOverridePath, []byte(driver), 0644); err != nil {
+	// #nosec G306 -- this is a pre-existing, kernel-managed sysfs attribute.
+	if err := os.WriteFile(driverOverridePath, []byte(driver), 0o644); err != nil {
 		return fmt.Errorf("failed to set driver_override for %s: %w", device, err)
 	}
 
 	bindPath := filepath.Join(pciDriversRoot, driver, "bind")
-	if err := os.WriteFile(bindPath, []byte(device), 0644); err != nil {
+	// #nosec G306 -- this is a pre-existing, kernel-managed sysfs attribute.
+	if err := os.WriteFile(bindPath, []byte(device), 0o644); err != nil {
 		return fmt.Errorf("failed to bind %s to %s: %w", device, driver, err)
 	}
 
@@ -253,7 +255,8 @@ func bind(device string, driver string) error {
 
 func unbind(device string) error {
 	driverOverridePath := filepath.Join(pciDevicesRoot, device, "driver_override")
-	if err := os.WriteFile(driverOverridePath, []byte("\n"), 0644); err != nil {
+	// #nosec G306 -- this is a pre-existing, kernel-managed sysfs attribute.
+	if err := os.WriteFile(driverOverridePath, []byte("\n"), 0o644); err != nil {
 		return fmt.Errorf("failed to clear driver_override for %s: %w", device, err)
 	}
 
@@ -269,7 +272,8 @@ func unbind(device string) error {
 	driverName := filepath.Base(driverLink)
 
 	unbindPath := filepath.Join(driverPath, "unbind")
-	if err := os.WriteFile(unbindPath, []byte(device), 0644); err != nil {
+	// #nosec G306 -- this is a pre-existing, kernel-managed sysfs attribute.
+	if err := os.WriteFile(unbindPath, []byte(device), 0o644); err != nil {
 		return fmt.Errorf("failed to unbind %s from %s: %w", device, driverName, err)
 	}
 
